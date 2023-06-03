@@ -9,10 +9,12 @@ from googleapiclient.errors import HttpError
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 CREDENTIALS_FILE = '../secrets/client_secret_196341740635-p5j8hmhopb89qhotitjj83ecsidbhr1s.apps.googleusercontent.com.json'
-TOKEN_FILE = 'token.pickle'
 
-def get_auth():
+def get_auth(credentials_file=CREDENTIALS_FILE):
     creds = None
+    # lets save the token in the same directory the credentials are in
+    TOKEN_FILE = os.path.join(os.path.dirname(credentials_file), 'token.pickle')
+
     if os.path.exists(TOKEN_FILE):
         with open(TOKEN_FILE, 'rb') as token:
             creds = pickle.load(token)
@@ -32,7 +34,9 @@ def create_message(sender, to, subject, message_text):
         'raw': base64.urlsafe_b64encode(
             f"From: {sender}\r\n"
             f"To: {to}\r\n"
-            f"Subject: {subject}\r\n\r\n"
+            f"Subject: {subject}\r\n"
+            f"MIME-Version: 1.0\r\n"
+            f"Content-Type: text/html; charset=utf-8\r\n\r\n"
             f"{message_text}".encode("utf-8")
         ).decode("utf-8")
     }
@@ -48,7 +52,7 @@ def send_message(service, user_id, message):
         print(f"An error occurred: {error}")
 
 
-def send_email(sender, to, subject, message_text, creds=None):
+def send(sender, to, subject, message_text, creds=None):
     if creds is None:
         creds = get_auth()
 

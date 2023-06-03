@@ -5,7 +5,6 @@ from google.auth.transport.requests import Request  # pip install google-auth-oa
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build     # pip install google-api-python-client
 from googleapiclient.errors import HttpError
-from google.oauth2.credentials import Credentials   # pip install google-auth
 
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']

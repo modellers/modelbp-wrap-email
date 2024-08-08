@@ -6,12 +6,17 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build     # pip install google-api-python-client
 from googleapiclient.errors import HttpError
 
+import os
+
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-CREDENTIALS_FILE = '../secrets/client_secret_196341740635-p5j8hmhopb89qhotitjj83ecsidbhr1s.apps.googleusercontent.com.json'
+# Fetch the path to CREDENTIALS_FILE from environment variable, provide a default example path if not set
+CREDENTIALS_FILE = os.getenv('CREDENTIALS_FILE', '../secrets/client_secret_196341740635-p5j8hmhopb89qhotitjj83ecsidbhr1s.apps.googleusercontent.com.json')
 
-def get_auth(credentials_file=CREDENTIALS_FILE):
+def get_auth(credentials_file=None):
     creds = None
+    if credentials_file is None:
+        credentials_file = CREDENTIALS_FILE
     # lets save the token in the same directory the credentials are in
     TOKEN_FILE = os.path.join(os.path.dirname(credentials_file), 'token.pickle')
 
@@ -23,7 +28,7 @@ def get_auth(credentials_file=CREDENTIALS_FILE):
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                CREDENTIALS_FILE, SCOPES)
+                credentials_file, SCOPES)
             creds = flow.run_local_server(port=0)
         with open(TOKEN_FILE, 'wb') as token:
             pickle.dump(creds, token)

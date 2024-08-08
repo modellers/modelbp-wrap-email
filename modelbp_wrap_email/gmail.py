@@ -6,9 +6,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build     # pip install google-api-python-client
 from googleapiclient.errors import HttpError
 
+# Import os module to access environment variables
+import os
+
 # Constants
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
-CREDENTIALS_FILE = '../secrets/client_secret_196341740635-p5j8hmhopb89qhotitjj83ecsidbhr1s.apps.googleusercontent.com.json'
+CREDENTIALS_FILE = os.getenv('CREDENTIALS_FILE', '../secrets/client_secret_example.json')
 
 def get_auth(credentials_file=CREDENTIALS_FILE):
     creds = None
@@ -22,8 +25,10 @@ def get_auth(credentials_file=CREDENTIALS_FILE):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            if not os.path.exists(credentials_file):
+                raise FileNotFoundError(f"Credentials file not found: {credentials_file}")
             flow = InstalledAppFlow.from_client_secrets_file(
-                CREDENTIALS_FILE, SCOPES)
+                credentials_file, SCOPES)
             creds = flow.run_local_server(port=0)
         with open(TOKEN_FILE, 'wb') as token:
             pickle.dump(creds, token)
